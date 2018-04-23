@@ -6,7 +6,7 @@ This is a Docker image for TeamCity build agents which comes with Node.js LTS (8
 
 It is used the same way as the official image from JetBrains, but also supports some configuration for AWS cli and Kubernetes. 
 
-When the TeamCity agent and server runs in the same Kubernetes cluster, it is able to pick up the kubernetes config automatically and you do not need to mount the .kube/config.
+When the TeamCity agent and server runs in the same Kubernetes cluster it is able to pick up the kubernetes config automatically, and you do not need to mount the .kube/config.
 
 ```
 docker run -ti --privileged \
