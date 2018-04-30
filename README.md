@@ -1,7 +1,7 @@
 # hubiinetwork/teamcity-agent-node
 
 ## Description
-This is a Docker image for TeamCity build agents which comes with Node.js LTS (8.x), AWS cli and kubectl for Kubernetes installed. It is based  on the [official JetBrains TeamCity build agent image](https://hub.docker.com/r/jetbrains/teamcity-agent/).
+This is a Docker image for TeamCity build agents which comes with Node.js LTS (8.x), Ruby 2.3.1, AWS cli and kubectl for Kubernetes installed. It is based  on the [official JetBrains TeamCity build agent image](https://hub.docker.com/r/jetbrains/teamcity-agent/).
 
 
 It is used the same way as the official image from JetBrains, but also supports some configuration for AWS cli and Kubernetes. 
