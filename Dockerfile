@@ -7,6 +7,9 @@ RUN apt-get update && \
   apt-get install -y nodejs build-essential && \
   npm install npm@latest -g
 
+# Install Ruby
+RUN apt-get install ruby-full -y
+
 # Install aws cli
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
   python get-pip.py && \
