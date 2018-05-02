@@ -22,5 +22,5 @@ docker run -ti --privileged \
 
 Read the [JetBrains TeamCity build agent documentation for more information](https://hub.docker.com/r/jetbrains/teamcity-agent/).
 
-Dockerfile source:
-https://github.com/hubiinetwork/teamcity-agent-node
+Dockerfile source: [GitHub teamcity-agent-node](
+https://github.com/hubiinetwork/teamcity-agent-node)
