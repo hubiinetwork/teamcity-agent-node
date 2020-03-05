@@ -3,7 +3,7 @@ FROM jetbrains/teamcity-agent
 # Install node LTS
 RUN apt-get update && \
   apt-get install curl sudo -y && \
-  curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash - && \
+  curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
   apt-get install -y nodejs build-essential && \
   npm install npm@latest -g
 
