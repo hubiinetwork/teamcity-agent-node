@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta-runner name="Kubernetes apply folder as namespace">
+  <description>Runs kubectl apply on a folder specifying a namespace to apply it in</description>
+  <settings>
+    <parameters>
+      <param name="workingDir" value="" />
+      <param name="kubernetes.folder" value="" />
+      <param name="kubernetes.namespace" value="" />
+    </parameters>
+    <build-runners>
+      <runner name="Apply kubernetes config to namespace" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="true" />
+          <param name="script.content" value="kubectl apply -f %kubernetes.folder% --namespace %kubernetes.namespace%" />
+          <param name="teamcity.build.workingDir" value="%workingDir%" />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <requirements />
+  </settings>
+</meta-runner>
+

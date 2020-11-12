@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta-runner name="Docker build and push">
+  <description>Runner handling docker build and push</description>
+  <settings>
+    <parameters>
+      <param name="docker.image.name" value="%docker.image.name%" />
+      <param name="docker.server" value="856572510817.dkr.ecr.eu-west-1.amazonaws.com" />
+    </parameters>
+    <build-runners>
+      <runner name="Docker build" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="true" />
+          <param name="script.content" value="docker build -t %docker.image.name% --build-arg SSH_PRIVATE_KEY=&quot;$GITHUB_PRIVATE_KEY&quot; ." />
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner name="Docker push" type="simpleRunner">
+        <parameters>
+          <param name="script.content"><![CDATA[DOCKER_LOGIN_CMD="$(aws ecr get-login --no-include-email)"
+$DOCKER_LOGIN_CMD
+
+BRANCH_NAME="%teamcity.build.branch%"
+if [ $BRANCH_NAME = "master" ]
+then
+   BRANCH_NAME=latest
+fi
+
+docker tag %docker.image.name% %docker.server%/%docker.image.name%:$BRANCH_NAME
+docker tag %docker.image.name% %docker.server%/%docker.image.name%:v%build.counter%
+
+docker push %docker.server%/%docker.image.name%:$BRANCH_NAME
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+docker push %docker.server%/%docker.image.name%:v%build.counter%
+if [ $? -ne 0 ]; then
+    exit 2
+fi]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <requirements />
+  </settings>
+</meta-runner>
+
