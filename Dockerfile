@@ -1,4 +1,4 @@
-FROM jetbrains/teamcity-agent
+FROM jetbrains/teamcity-agent:2020.2.2
 
 USER root
 
@@ -16,9 +16,12 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
 # Install Ruby
 RUN apt-get install -y ruby-full
 
+# Install Python dependencies
+RUN apt-get install -y python3-distutils
+
 # Install AWS cli
 RUN curl -O https://bootstrap.pypa.io/get-pip.py && \
-  python get-pip.py && \
+  python3 get-pip.py && \
   pip install awscli --upgrade --user
 
 # Install Azure cli
