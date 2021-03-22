@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta-runner name="Docker build and push sub-project">
+  <description>Runner that builds and pushes docker image of sub-project</description>
+  <settings>
+    <parameters>
+      <param name="docker.image.name" value="" />
+      <param name="docker.server" value="856572510817.dkr.ecr.eu-west-1.amazonaws.com" />
+      <param name="subproject.name" value="" />
+    </parameters>
+    <build-runners>
+      <runner name="Ensure sub-project exists" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="true" />
+          <param name="script.content"><![CDATA[
+set -v
+
+if [ ! -e "packages" ]; then
+  echo 'monolitic repo is expected to caintain a folder named "packages".'
+  exit -1
+fi
+
+if [ ! -e "packages/%subproject.name%" ]; then
+  echo 'Sub-project directory "packages/%subproject.name%" is not found.'
+  echo 'Packages sub-directory must match the parameter subproject.name: "%subproject.name%"'
+  exit -1
+fi
+          ]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner name="Docker build" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="true" />
+          <param name="script.content"><![CDATA[
+set -v
+docker build -t %docker.image.name% --build-arg SSH_PRIVATE_KEY="$GITHUB_PRIVATE_KEY" -f Dockerfile.%subproject.name% .
+          ]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner name="Docker push" type="simpleRunner">
+        <parameters>
+          <param name="script.content"><![CDATA[
+set -v
+
+DOCKER_LOGIN_CMD="$(aws ecr get-login --no-include-email)"
+$DOCKER_LOGIN_CMD
+
+BRANCH_NAME="%teamcity.build.branch%"
+if [ $BRANCH_NAME = "master" ]
+then
+   BRANCH_NAME=latest
+fi
+
+docker tag %docker.image.name% %docker.server%/%docker.image.name%:$BRANCH_NAME
+docker tag %docker.image.name% %docker.server%/%docker.image.name%:b%build.counter%
+
+docker push %docker.server%/%docker.image.name%:$BRANCH_NAME
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+docker push %docker.server%/%docker.image.name%:b%build.counter%
+if [ $? -ne 0 ]; then
+    exit 2
+fi
+          ]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <requirements />
+  </settings>
+</meta-runner>
+

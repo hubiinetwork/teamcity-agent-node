@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta-runner name="Kubernetes deploy sub-project to DEV">
+  <description>Runner that deploys sub-project kubernetes configuration to DEV</description>
+  <settings>
+    <parameters>
+      <param name="subproject.name" value="" />
+    </parameters>
+    <build-runners>
+      <runner name="Ensure sub-project exists" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="false" />
+          <param name="script.content"><![CDATA[
+set -v
+
+if [ ! -e "packages" ]; then
+  echo 'monolitic repo is expected to caintain a folder named "packages".'
+  exit -1
+fi
+
+if [ ! -e "packages/%subproject.name%" ]; then
+  echo 'Sub-project directory "packages/%subproject.name%" is not found.'
+  echo 'Packages sub-directory must match the parameter subproject.name: "%subproject.name%"'
+  exit -1
+fi
+          ]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner name="Skip if master branch" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="false" />
+          <param name="script.content"><![CDATA[
+set -v
+
+if [ "%branch_name%" = "master" ]; then
+   exit 0
+fi
+          ]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner name="Ensure kustomize is installed" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="false" />
+          <param name="script.content"><![CDATA[
+set -v
+
+mkdir -p ~/bin
+cd ~/bin
+rm -f ./kustomize
+curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+cd -
+          ]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+      <runner name="Apply kubernetes manifest" type="simpleRunner">
+        <parameters>
+          <param name="log.stderr.as.errors" value="false" />
+          <param name="script.content"><![CDATA[
+set -v
+
+cd packages/%subproject.name%
+
+~/bin/kustomize build kustomize/development > kustomization.yaml
+sed -i 's/:latest/:b%build.counter%/g' kustomization.yaml
+
+cat kustomization.yaml
+
+kubectl apply -f kustomization.yaml
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
+echo "##teamcity[buildNumber '%build.counter%']"
+          ]]></param>
+          <param name="teamcity.step.mode" value="default" />
+          <param name="use.custom.script" value="true" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <requirements />
+  </settings>
+</meta-runner>
+

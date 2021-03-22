@@ -1,0 +1,3 @@
+
+resources:
+- ./teamcity-agent-rbac-base.yaml

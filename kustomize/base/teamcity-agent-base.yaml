@@ -1,0 +1,61 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: teamcity
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: teamcity-agent
+  namespace: teamcity
+  labels:
+    app: teamcity-agent
+spec:
+  serviceName: teamcity-agent
+  replicas: PATCH_ME
+  selector:
+    matchLabels:
+      app: teamcity-agent
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: teamcity-agent
+    spec:
+      serviceAccountName: teamcity-agent
+      containers:
+      - name: teamcity-agent
+        image: hubiinetwork/teamcity-agent-node
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        env:
+          - name: SERVER_URL
+            value: https://ci-nahmii-2.dev.hubii.net
+          - name: DOCKER_IN_DOCKER
+            value: start
+        volumeMounts:
+          - name: teamcity-agent-pvc
+            mountPath: /data/teamcity_agent/conf
+          - name: docker-volume-pvc
+            mountPath: /var/lib/docker
+  volumeClaimTemplates:
+    - metadata:
+        name: teamcity-agent-pvc
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "gp2-ext4"
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: docker-volume-pvc
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: "gp2-ext4"
+        resources:
+          requests:
+            storage: 64Gi

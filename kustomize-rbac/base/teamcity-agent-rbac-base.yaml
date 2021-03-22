@@ -1,0 +1,33 @@
+
+# Configure agent pod with
+#   serviceAccountName: teamcity-agent
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: teamcity-agent
+  namespace: teamcity
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: teamcity-agent
+rules:
+  - apiGroups: ["", "apps", "nats.io"]
+    resources: ["pods", "services", "deployments", "statefulsets", "natsclusters"]
+    verbs: ["get", "list", "watch", "patch", "create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: teamcity-agent
+subjects:
+  - kind: ServiceAccount
+    name: teamcity-agent
+    namespace: teamcity
+roleRef:
+  kind: ClusterRole
+  name: teamcity-agent
+  apiGroup: rbac.authorization.k8s.io
