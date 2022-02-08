@@ -1,6 +1,7 @@
 FROM jetbrains/teamcity-agent:2020.2.2
 
 USER root
+RUN chmod 1777 /tmp
 
 # Update apt
 RUN apt-get update
@@ -11,7 +12,10 @@ RUN apt-get install -y curl sudo
 # Install node LTS
 RUN curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && \
   apt-get install -y nodejs build-essential && \
-  npm install -g npm@latest
+  npm install -g npm@6.14.12
+
+# Install NVM
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
 # Install Ruby
 RUN apt-get install -y ruby-full
@@ -34,10 +38,8 @@ RUN apt-get install -y ca-certificates apt-transport-https lsb-release gnupg && 
 ENV PATH=/root/.local/bin:$PATH
 
 # Install kubectl
-RUN apt-get install -y apt-transport-https && \
-  curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
-  echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list && \
-  apt-get update && \
-  apt-get install -y kubectl
+RUN curl -LO "https://dl.k8s.io/release/v1.19.15/bin/linux/amd64/kubectl" && \
+  sudo install -o root -g root -m 0755 kubectl "/usr/bin/kubectl" && \
+  rm -f kubectl
 
 CMD "/run-services.sh"
