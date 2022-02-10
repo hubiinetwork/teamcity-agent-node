@@ -28,7 +28,7 @@ spec:
       serviceAccountName: teamcity-agent
       containers:
       - name: teamcity-agent
-        image: hubiinetwork/teamcity-agent-node
+        image: hubiinetwork/teamcity-agent-node:PATCH_ME
         imagePullPolicy: Always
         securityContext:
           privileged: true
