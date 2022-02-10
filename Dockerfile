@@ -1,4 +1,4 @@
-FROM jetbrains/teamcity-agent:2020.2.2
+FROM jetbrains/teamcity-agent:2021.1.4
 
 USER root
 RUN chmod 1777 /tmp
